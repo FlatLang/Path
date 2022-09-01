@@ -1,0 +1,63 @@
+package flat/path
+
+import flat/log/Logger
+import flatlang/datastruct/HashMap
+import flatlang/io/File
+import flatlang/io/FileWriter
+
+import static flat/colorizer/Colorizer
+import static flat/regedit/RegEdit
+import static flat/elevate/Elevate
+
+class {
+  let static Logger log = Logger(Path.class)
+
+  public static async appendToUserPath(
+    String value,
+    Bool requireValidDirectory = true,
+    Bool skipIfAlreadyExistsInPath = true
+  ) {
+    let sanitizedValue = value.trimStart(';').trimEnd(';').replace("/", "\\").trim()
+
+    if (requireValidDirectory && !File(sanitizedValue).isDirectory) {
+      throw Exception("Directory \"#{sanitizedValue}\" does not exist")
+    }
+
+    let environment = RegEdit.list("HKCU\\Environment")
+    log.trace("Retreived environment from registry: #{environment.toJson()}")
+
+    let HashMap values = (HashMap)environment["values"]
+
+    var String pathKeyName
+
+    values
+      .filter({ _.key.toString().toLowerCase() == "path" })
+      :forEach({ pathKeyName = _.key.toString() })
+
+    if (!pathKeyName) {
+      throw Exception("Environment does not contain Path entry")
+    }
+
+    let HashMap pathMap = (HashMap)values[pathKeyName]
+    let String path = (String)pathMap["value"]
+    log.debug("Retreived path from registry: #{path}")
+
+    let sanitizedPath = path.endsWith(";") ? path : "#{path};"
+
+    if (skipIfAlreadyExistsInPath && sanitizedPath.contains("#{sanitizedValue};")) {
+      log.debug("Value already exists in Path entry. Skipping adding it")
+      return
+    }
+
+    log.debug("Appending value \"#{value}\" to path")
+
+    let putRequest = HashMap():add(
+      "Path",
+      HashMap()
+        :add("type", "REG_EXPAND_SZ")
+        :add("value", "#{sanitizedPath}#{sanitizedValue};")
+    )
+
+    RegEdit.putValue("HKCU\\Environment", putRequest)
+  }
+}
