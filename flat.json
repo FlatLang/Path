@@ -16,7 +16,6 @@
         "github:FlatLang/System": "master",
         "github:FlatLang/IO": "master",
         "github:FlatLang/Logger": "master",
-        "github:FlatLang/Elevate": "master",
         "github:FlatLang/RegEdit": "master"
       }
     },

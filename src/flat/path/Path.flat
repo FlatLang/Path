@@ -7,7 +7,6 @@ import flatlang/io/FileWriter
 
 import static flat/colorizer/Colorizer
 import static flat/regedit/RegEdit
-import static flat/elevate/Elevate
 
 class {
   let static Logger log = Logger(Path.class)
