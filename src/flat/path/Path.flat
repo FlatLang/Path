@@ -16,6 +16,17 @@ class {
     Bool requireValidDirectory = true,
     Bool skipIfAlreadyExistsInPath = true
   ) {
+    match System.OS_INT {
+      System.WINDOWS => windowsAppendToUserPath(value, requireValidDirectory, skipIfAlreadyExistsInPath)
+      default => appendToRunCommandsFiles(value, requireValidDirectory, skipIfAlreadyExistsInPath)
+    }
+  }
+
+  static async windowsAppendToUserPath(
+    String value,
+    Bool requireValidDirectory = true,
+    Bool skipIfAlreadyExistsInPath = true
+  ) {
     let sanitizedValue = value.trimStart(';').trimEnd(';').replace("/", "\\").trim()
 
     if (requireValidDirectory && !File(sanitizedValue).isDirectory) {
@@ -59,4 +70,31 @@ class {
 
     RegEdit.putValue("HKCU\\Environment", putRequest)
   }
+
+  static async appendToRunCommandsFiles(
+    String value,
+    Bool requireValidDirectory = true,
+    Bool skipIfAlreadyExistsInPath = true
+  ) {
+    let sanitizedValue = value.trimStart(':').trimEnd(':').trim()
+
+    if (requireValidDirectory && !File(sanitizedValue).isDirectory) {
+      throw Exception("Directory \"#{sanitizedValue}\" does not exist")
+    }
+
+
+  }
+
+  static getUserRunCommandsFiles() =>
+    File(System.homeDirectory)
+      .getChildFiles(includeHidden: true)
+      .filter({ _.isHidden })
+      .filter(file => file.name.endsWith("rc") || file.name == ".profile")
+
+  static getUserShellRunCommandsFiles() =>
+    getUserRunCommandsFiles().filter(file => {
+      return file.name == ".bashrc" ||
+        file.name == ".zshrc" ||
+        file.name == ".profile"
+    })
 }
