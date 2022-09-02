@@ -85,13 +85,13 @@ class {
 
   }
 
-  static getUserRunCommandsFiles() =>
+  public static getUserRunCommandsFiles() =>
     File(System.homeDirectory)
       .getChildFiles(includeHidden: true)
       .filter({ _.isHidden })
       .filter(file => file.name.endsWith("rc") || file.name == ".profile")
 
-  static getUserShellRunCommandsFiles() =>
+  public static getUserShellRunCommandsFiles() =>
     getUserRunCommandsFiles().filter(file => {
       return file.name == ".bashrc" ||
         file.name == ".zshrc" ||
