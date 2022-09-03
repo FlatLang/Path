@@ -101,7 +101,7 @@ class {
 
           PATH_APPEND_VALUE=#{sanitizedValue}
           if [ -d \"$PATH_APPEND_VALUE\" ] && [[ \":$PATH:\" != *\":$PATH_APPEND_VALUE:\"* ]]; then
-            PATH=\"$PATH_APPEND_VALUE${PATH:+\":$PATH\"}\"
+            PATH=\"${PATH:+\"$PATH:\"}$PATH_APPEND_VALUE\"
           fi
           |")
         :close()
