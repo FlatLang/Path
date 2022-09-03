@@ -3,7 +3,9 @@ package flat/path
 import flat/log/Logger
 import flatlang/datastruct/HashMap
 import flatlang/io/File
+import flatlang/io/FileReader
 import flatlang/io/FileWriter
+import flatlang/time/DateTime
 
 import static flat/colorizer/Colorizer
 import static flat/regedit/RegEdit
@@ -83,6 +85,15 @@ class {
     }
 
     for (file in getUserShellRunCommandsFiles()) {
+      let contents = FileReader(file).readAllContents()
+
+      if (contents.contains(sanitizedValue)) {
+        log.debug("Value \"#{sanitizedValue}\" is already appended to the path in file \"#{file.nativeLocation}\". Skipping")
+        continue
+      }
+
+      backupFile(file)
+
       log.debug("Appending value \"#{sanitizedValue}\" to path in file \"#{file.nativeLocation}\"")
 
       FileWriter(file)
@@ -95,6 +106,15 @@ class {
           |")
         :close()
     }
+  }
+
+  static async backupFile(File rcFile) {
+    File file = File("bak/#{rcFile.name}-#{DateTime.now().millis}")
+    file.getParent().mkdir()
+
+    log.debug("Backing up \"#{rcFile.nativeLocation}\" to #{file.nativeLocation}")
+
+    rcFile.copy(file)
   }
 
   public static getUserRunCommandsFiles() =>
