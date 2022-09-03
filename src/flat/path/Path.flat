@@ -59,7 +59,7 @@ class {
       return
     }
 
-    log.debug("Appending value \"#{value}\" to path")
+    log.debug("Appending value \"#{sanitizedValue}\" to path")
 
     let putRequest = HashMap():add(
       "Path",
