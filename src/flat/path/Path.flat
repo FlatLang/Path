@@ -13,21 +13,49 @@ import static flat/regedit/RegEdit
 class {
   let static Logger log = Logger(Path.class)
 
+  public static async prependToUserPath(
+    String value,
+    Bool requireValidDirectory = true,
+    Bool skipIfAlreadyExistsInPath = true
+  ) {
+    addToUserPath(
+      value,
+      requireValidDirectory,
+      skipIfAlreadyExistsInPath,
+      prepend: true
+    )
+  }
+
   public static async appendToUserPath(
     String value,
     Bool requireValidDirectory = true,
     Bool skipIfAlreadyExistsInPath = true
   ) {
+    addToUserPath(
+      value,
+      requireValidDirectory,
+      skipIfAlreadyExistsInPath,
+      prepend: false
+    )
+  }
+
+  public static async addToUserPath(
+    String value,
+    Bool requireValidDirectory = true,
+    Bool skipIfAlreadyExistsInPath = true,
+    Bool: prepend = false
+  ) {
     match System.OS_INT {
-      System.WINDOWS => windowsAppendToUserPath(value, requireValidDirectory, skipIfAlreadyExistsInPath)
-      default => appendToRunCommandsFiles(value, requireValidDirectory, skipIfAlreadyExistsInPath)
+      System.WINDOWS => windowsAddToUserPath(value, requireValidDirectory, skipIfAlreadyExistsInPath, prepend)
+      default => addToRunCommandsFiles(value, requireValidDirectory, skipIfAlreadyExistsInPath, prepend)
     }
   }
 
-  static async windowsAppendToUserPath(
+  static async windowsAddToUserPath(
     String value,
     Bool requireValidDirectory = true,
-    Bool skipIfAlreadyExistsInPath = true
+    Bool skipIfAlreadyExistsInPath = true,
+    Bool: prepend = false
   ) {
     let sanitizedValue = value.trimStart(';').trimEnd(';').replace("/", "\\").trim()
 
@@ -67,16 +95,21 @@ class {
       "Path",
       HashMap()
         :add("type", "REG_EXPAND_SZ")
-        :add("value", "#{sanitizedPath}#{sanitizedValue};")
+        :add("value",
+          prepend ?
+            "#{sanitizedValue};#{sanitizedPath}" :
+            "#{sanitizedPath}#{sanitizedValue};"
+        )
     )
 
     RegEdit.putValue("HKCU\\Environment", putRequest)
   }
 
-  static async appendToRunCommandsFiles(
+  static async addToRunCommandsFiles(
     String value,
     Bool requireValidDirectory = true,
-    Bool skipIfAlreadyExistsInPath = true
+    Bool skipIfAlreadyExistsInPath = true,
+    Bool: prepend = false
   ) {
     let sanitizedValue = value.trimStart(':').trimEnd(':').trim()
 
@@ -96,12 +129,16 @@ class {
 
       log.debug("Appending value \"#{sanitizedValue}\" to path in file \"#{file.nativeLocation}\"")
 
+      let addValue = prepend ?
+        "PATH=\"$PATH_APPEND_VALUE${PATH:+\":$PATH\"}\"" :
+        "PATH=\"${PATH:+\"$PATH:\"}$PATH_APPEND_VALUE\""
+
       FileWriter(file)
         :append("|
 
           PATH_APPEND_VALUE=#{sanitizedValue}
           if [ -d \"$PATH_APPEND_VALUE\" ] && [[ \":$PATH:\" != *\":$PATH_APPEND_VALUE:\"* ]]; then
-            PATH=\"${PATH:+\"$PATH:\"}$PATH_APPEND_VALUE\"
+            #{addValue}
           fi
           |")
         :close()
