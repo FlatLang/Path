@@ -82,7 +82,19 @@ class {
       throw Exception("Directory \"#{sanitizedValue}\" does not exist")
     }
 
+    for (file in getUserShellRunCommandsFiles()) {
+      log.debug("Appending value \"#{sanitizedValue}\" to path in file \"#{file.nativeLocation}\"")
 
+      FileWriter(file)
+        :append("|
+
+          PATH_APPEND_VALUE=#{sanitizedValue}
+          if [ -d \"$PATH_APPEND_VALUE\" ] && [[ \":$PATH:\" != *\":$PATH_APPEND_VALUE:\"* ]]; then
+            PATH=\"$PATH_APPEND_VALUE${PATH:+\":$PATH\"}\"
+          fi
+          |")
+        :close()
+    }
   }
 
   public static getUserRunCommandsFiles() =>
