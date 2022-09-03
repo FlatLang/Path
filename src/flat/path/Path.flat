@@ -121,12 +121,17 @@ class {
     File(System.homeDirectory)
       .getChildFiles(includeHidden: true)
       .filter({ _.isHidden })
-      .filter(file => file.name.endsWith("rc") || file.name == ".profile")
+      .filter(file => {
+        return file.name.endsWith("rc") ||
+          file.name == ".profile" ||
+          file.name == ".bash_profile"
+      })
 
   public static getUserShellRunCommandsFiles() =>
     getUserRunCommandsFiles().filter(file => {
       return file.name == ".bashrc" ||
         file.name == ".zshrc" ||
-        file.name == ".profile"
+        file.name == ".profile" ||
+        file.name == ".bash_profile"
     })
 }
