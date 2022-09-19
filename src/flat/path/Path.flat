@@ -1,11 +1,11 @@
 package flat/path
 
 import flat/log/Logger
-import flatlang/datastruct/HashMap
-import flatlang/io/File
-import flatlang/io/FileReader
-import flatlang/io/FileWriter
-import flatlang/time/DateTime
+import flat/datastruct/HashMap
+import flat/io/File
+import flat/io/FileReader
+import flat/io/FileWriter
+import flat/time/DateTime
 
 import static flat/colorizer/Colorizer
 import static flat/regedit/RegEdit
