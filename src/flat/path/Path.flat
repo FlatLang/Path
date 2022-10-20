@@ -12,7 +12,7 @@ import static flat/colorizer/Colorizer
 import static flat/regedit/RegEdit
 
 class {
-  let static Logger log = Logger(Path.class)
+  static Logger log = Logger(Path.class)
 
   public static async prependToUserPath(
     String value,
