@@ -143,18 +143,18 @@ class {
     File(System.homeDirectory)
       .getChildFiles(includeHidden: true)
       .filter({ _.isHidden })
-      .filter(file => {
-        return file.name.endsWith("rc") ||
-          file.name == ".profile" ||
-          file.name == ".bash_profile"
+      .filter({
+        return _x.name.endsWith("rc") ||
+          _x.name == ".profile" ||
+          _x.name == ".bash_profile"
       })
 
   public static getUserShellRunCommandsFiles() =>
-    getUserRunCommandsFiles().filter(file => {
-      return file.name == ".bashrc" ||
-        file.name == ".zshrc" ||
-        file.name == ".profile" ||
-        file.name == ".bash_profile"
+    getUserRunCommandsFiles().filter({
+      return _x.name == ".bashrc" ||
+        _x.name == ".zshrc" ||
+        _x.name == ".profile" ||
+        _x.name == ".bash_profile"
     })
 
   public static async removeFromUserPath(
