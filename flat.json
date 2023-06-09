@@ -13,10 +13,10 @@
     "main": {
       "source": "src",
       "dependencies": {
-        "https://github.com/FlatLang/System": "master",
-        "https://github.com/FlatLang/IO": "master",
-        "https://github.com/FlatLang/Logger": "master",
-        "https://github.com/FlatLang/RegEdit": "master"
+        "https://github.com/FlatLang/System.git": "master",
+        "https://github.com/FlatLang/IO.git": "master",
+        "https://github.com/FlatLang/Logger.git": "master",
+        "https://github.com/FlatLang/RegEdit.git": "master"
       }
     },
     "cmd": {
@@ -28,7 +28,7 @@
       "mainClass": "flat/path/Path_TestSuite",
       "source": "src/**/*_Test*.flat",
       "dependencies": {
-        "https://github.com/FlatLang/Test": "master"
+        "https://github.com/FlatLang/Test.git": "master"
       }
     }
   }
